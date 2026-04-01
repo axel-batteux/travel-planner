@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Map, WalletCards, FolderOpen } from "lucide-react";
+import { Home, Map, WalletCards, FolderOpen, CheckSquare } from "lucide-react";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -11,7 +11,8 @@ export function MobileNav() {
     { name: "Accueil", href: "/", icon: Home },
     { name: "Itinéraire", href: "/itinerary", icon: Map },
     { name: "Budget", href: "/budget", icon: WalletCards },
-    { name: "Documents", href: "/documents", icon: FolderOpen },
+    { name: "Checklists", href: "/checklists", icon: CheckSquare },
+    { name: "Docs", href: "/documents", icon: FolderOpen },
   ];
 
   return (

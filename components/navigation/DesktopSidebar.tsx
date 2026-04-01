@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Map, WalletCards, FolderOpen, Plane } from "lucide-react";
+import { Home, Map, WalletCards, FolderOpen, Plane, CheckSquare, Sparkles } from "lucide-react";
 
 export function DesktopSidebar() {
   const pathname = usePathname();
@@ -10,6 +10,8 @@ export function DesktopSidebar() {
   const navItems = [
     { name: "Accueil", href: "/", icon: Home },
     { name: "Itinéraire", href: "/itinerary", icon: Map },
+    { name: "Checklists", href: "/checklists", icon: CheckSquare },
+    { name: "Bucketlist", href: "/bucketlist", icon: Sparkles },
     { name: "Budget", href: "/budget", icon: WalletCards },
     { name: "Documents", href: "/documents", icon: FolderOpen },
   ];
