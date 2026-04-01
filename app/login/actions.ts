@@ -33,10 +33,10 @@ export async function signup(formData: FormData) {
   })
 
   if (error) {
-    return redirect('/login?message=Erreur lors de la création du compte')
+    return redirect(`/login?message=${encodeURIComponent(error.message)}`)
   }
 
-  return redirect('/login?message=Vérifiez votre email (ou connectez-vous directement si pas de vérification email config)')
+  return redirect('/login?message=Compte créé avec succès ! Connectez-vous.')
 }
 
 export async function loginMock(formData: FormData) {
