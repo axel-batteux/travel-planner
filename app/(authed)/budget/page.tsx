@@ -1,57 +1,79 @@
 import { createClient } from '@/utils/supabase/server'
-import { WalletCards, Plus, ArrowRightLeft } from 'lucide-react'
-import { addExpenseMock, addExpense } from './actions'
-
-const MOCK_EXPENSES = [
-  { id: '1', title: 'Billets Japon', amount: 1200, category: 'Vol', paid_by: 'Axel', date: '2026-01-10' },
-  { id: '2', title: 'Hôtel Tokyo 4 nuits', amount: 450, category: 'Hôtel', paid_by: 'Partenaire', date: '2026-02-15' },
-  { id: '3', title: 'Pass JR', amount: 400, category: 'Transport', paid_by: 'Axel', date: '2026-03-01' },
-]
+import { Plus, ArrowRightLeft, User, SplitSquareHorizontal, HandCoins } from 'lucide-react'
+import { addExpense } from './actions'
 
 export default async function BudgetPage() {
   const supabase = await createClient()
-  let expenses = MOCK_EXPENSES
-  const isMock = !supabase
+  
+  // 1. Fetch data
+  const { data: expenses } = await supabase.from('expenses').select('*').order('date', { ascending: false })
+  const expenseList = expenses || []
 
-  if (supabase) {
-    const { data } = await supabase.from('expenses').select('*').order('date', { ascending: false })
-    if (data && data.length > 0) expenses = data
-  }
+  // 2. Calcul du Tricount
+  // Axel > 0 veut dire que le Partenaire doit de l'argent à Axel
+  let balanceAxel = 0
+  let totalSpent = 0
+  let totalAxelPaid = 0
+  let totalPartnerPaid = 0
 
-  const total = expenses.reduce((acc, curr) => acc + curr.amount, 0)
-  const paidByAxel = expenses.filter(e => e.paid_by === 'Axel').reduce((acc, curr) => acc + curr.amount, 0)
-  const paidByPartner = expenses.filter(e => e.paid_by !== 'Axel').reduce((acc, curr) => acc + curr.amount, 0)
-  const balance = (paidByAxel - paidByPartner) / 2
+  expenseList.forEach(e => {
+    totalSpent += Number(e.amount)
+    if (e.paid_by === 'Axel') {
+      totalAxelPaid += Number(e.amount)
+      if (e.split_type === 'equally') balanceAxel += Number(e.amount) / 2
+      if (e.split_type === 'paid_by_other_only') balanceAxel += Number(e.amount)
+    } else {
+      totalPartnerPaid += Number(e.amount)
+      if (e.split_type === 'equally') balanceAxel -= Number(e.amount) / 2
+      if (e.split_type === 'paid_by_other_only') balanceAxel -= Number(e.amount)
+    }
+  })
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Budget de Voyage</h1>
-        <p className="text-muted-foreground mt-2">Suivez vos dépenses communes et équilibrez les comptes.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Le Tricount 💸</h1>
+        <p className="text-muted-foreground mt-2">Finies les calculatrices en fin de séjour. Ajoutez, l'application équilibre.</p>
       </header>
 
-      {/* Résumé */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+      {/* Résumé Immersif */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm overflow-hidden relative">
+           <div className="absolute top-0 right-0 p-4 opacity-5"><HandCoins size={80}/></div>
            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Total Dépensé</h2>
-           <p className="text-4xl font-extrabold text-primary">{total} €</p>
+           <p className="text-5xl font-black bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{totalSpent.toFixed(2)} €</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm md:col-span-2">
-           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Équilibre des Comptes</h2>
-           <div className="flex items-center justify-between bg-muted/50 p-4 rounded-xl overflow-x-auto gap-4">
-              <div className="min-w-[120px]">
-                 <p className="text-sm text-muted-foreground">Axel</p>
-                 <p className="text-lg font-bold">{paidByAxel} €</p>
+        
+        <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm md:col-span-2">
+           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">L'Équilibre Global</h2>
+           <div className="flex items-center justify-between bg-background/50 p-6 rounded-2xl overflow-x-auto gap-4 border border-border/50">
+              <div className="text-center min-w-[100px]">
+                 <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-2"><User size={20}/></div>
+                 <p className="text-sm font-medium">Axel a payé</p>
+                 <p className="text-xl font-bold">{totalAxelPaid.toFixed(2)} €</p>
               </div>
+              
               <div className="flex flex-col items-center flex-1 px-4 text-center">
-                 <ArrowRightLeft className="text-muted-foreground mb-1" size={20} />
-                 <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-1 rounded-md max-w-[180px] break-words">
-                   {balance > 0 ? "Le partenaire doit " + balance + " € à Axel" : balance < 0 ? "Axel doit " + Math.abs(balance) + " € au partenaire" : "Comptes à l'équilibre"}
-                 </span>
+                 <ArrowRightLeft className="text-muted-foreground mb-4 opacity-50" size={24} />
+                 {balanceAxel > 0 ? (
+                   <span className="text-sm font-bold bg-green-500/10 text-green-600 dark:text-green-400 px-4 py-2 rounded-xl ring-1 ring-green-500/20 shadow-sm transition-all hover:scale-105">
+                     Le partenaire doit {balanceAxel.toFixed(2)} €
+                   </span>
+                 ) : balanceAxel < 0 ? (
+                   <span className="text-sm font-bold bg-amber-500/10 text-amber-600 dark:text-amber-500 px-4 py-2 rounded-xl ring-1 ring-amber-500/20 shadow-sm transition-all hover:scale-105">
+                     Axel doit {Math.abs(balanceAxel).toFixed(2)} €
+                   </span>
+                 ) : (
+                   <span className="text-sm font-bold bg-primary/10 text-primary px-4 py-2 rounded-xl ring-1 ring-primary/20 shadow-sm">
+                     Comptes à l'équilibre parfait ⚖️
+                   </span>
+                 )}
               </div>
-              <div className="text-right min-w-[120px]">
-                 <p className="text-sm text-muted-foreground">Partenaire</p>
-                 <p className="text-lg font-bold">{paidByPartner} €</p>
+              
+              <div className="text-center min-w-[100px]">
+                 <div className="w-12 h-12 bg-secondary/50 text-secondary-foreground rounded-full flex items-center justify-center mx-auto mb-2"><User size={20}/></div>
+                 <p className="text-sm font-medium">Partenaire</p>
+                 <p className="text-xl font-bold">{totalPartnerPaid.toFixed(2)} €</p>
               </div>
            </div>
         </div>
@@ -59,68 +81,91 @@ export default async function BudgetPage() {
 
       {/* Formulaire & Liste */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Formulaire */}
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm lg:col-span-1">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><Plus size={20}/> Nouvelle Dépense</h2>
-          <form className="space-y-4" action={isMock ? addExpenseMock : addExpense}>
+        {/* Formulaire Ajout Rapide */}
+        <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm lg:col-span-1 sticky top-8">
+          <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Plus className="text-primary"/> Nouvelle Dépense</h2>
+          <form className="space-y-5" action={addExpense}>
             <div>
-              <label className="text-sm font-medium mb-1 block">Titre</label>
-              <input name="title" required className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm" placeholder="Ex: Restaurant..." />
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Titre de la dépense</label>
+              <input name="title" required className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/40" placeholder="Ex: Restaurant sushis, Uber..." />
             </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-1 block">Montant (€)</label>
-                <input name="amount" type="number" step="0.01" required className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm" placeholder="0.00" />
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Montant (€)</label>
+                <input name="amount" type="number" step="0.01" required className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="0.00" />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Payé par</label>
-                <select name="paid_by" className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Payé par</label>
+                <select name="paid_by" className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer">
                   <option value="Axel">Axel</option>
                   <option value="Partenaire">Partenaire</option>
                 </select>
               </div>
             </div>
+
+            <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+               <label className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-2"><SplitSquareHorizontal size={14}/> Type de division</label>
+               <select name="split_type" className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer shadow-sm">
+                 <option value="equally">Diviser 50/50 (Par défaut)</option>
+                 <option value="paid_by_other_only">C'était entièrement pour l'autre 🎁</option>
+                 <option value="paid_by_me_only">C'était 100% pour moi (Perso)</option>
+               </select>
+            </div>
+
             <div>
-              <label className="text-sm font-medium mb-1 block">Catégorie</label>
-              <select name="category" className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm">
-                <option value="Vol">Vol</option>
-                <option value="Hôtel">Hôtel</option>
-                <option value="Nourriture">Nourriture</option>
-                <option value="Activité">Activité</option>
-                <option value="Transport">Transport</option>
-                <option value="Autre">Autre</option>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Catégorie</label>
+              <select name="category" className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
+                <option value="Nourriture">🍔 Nourriture</option>
+                <option value="Transport">🚕 Transport</option>
+                <option value="Vol">✈️ Vol</option>
+                <option value="Hôtel">🏨 Logement</option>
+                <option value="Activité">🎟️ Activité</option>
+                <option value="Autre">🛒 Autre</option>
               </select>
             </div>
-            <button className="w-full bg-primary text-primary-foreground font-medium rounded-lg py-2 mt-2 transition-colors hover:bg-primary/90">
-              Ajouter
+
+            <button type="submit" className="w-full bg-primary text-primary-foreground font-bold rounded-xl py-4 mt-4 transition-all hover:bg-primary/90 hover:scale-[1.02] shadow-lg shadow-primary/20 active:scale-95">
+              Enregistrer la dépense
             </button>
           </form>
         </div>
 
-        {/* Liste */}
-        <div className="bg-card border border-border rounded-2xl overflow-x-auto shadow-sm lg:col-span-2">
-           <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="bg-muted text-muted-foreground font-medium">
-                 <tr>
-                    <th className="px-6 py-4">Titre</th>
-                    <th className="px-6 py-4">Catégorie</th>
-                    <th className="px-6 py-4 text-center">Payé par</th>
-                    <th className="px-6 py-4 text-right">Montant</th>
-                 </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                 {expenses.map((exp) => (
-                   <tr key={exp.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-6 py-4 font-medium">{exp.title}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{exp.category}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="bg-muted px-2 py-1 rounded-md text-xs font-semibold">{exp.paid_by}</span>
-                      </td>
-                      <td className="px-6 py-4 text-right font-bold">{exp.amount} €</td>
-                   </tr>
-                 ))}
-              </tbody>
-           </table>
+        {/* Historique Moderne */}
+        <div className="lg:col-span-2 space-y-6">
+           <h2 className="text-xl font-bold flex items-center gap-2">Historique des transactions</h2>
+           {expenseList.length === 0 ? (
+             <div className="bg-card/30 border border-dashed border-border rounded-3xl p-12 text-center">
+               <HandCoins className="mx-auto text-muted-foreground/30 mb-4" size={48} />
+               <p className="text-muted-foreground">Aucune dépense pour l'instant.</p>
+             </div>
+           ) : (
+             <div className="grid gap-3">
+               {expenseList.map((exp) => (
+                 <div key={exp.id} className="group bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-muted/50 hover:border-border cursor-default">
+                    <div className="flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-xl shadow-inner border border-background">
+                         {exp.category === 'Nourriture' ? '🍔' : exp.category === 'Transport' ? '🚕' : exp.category === 'Vol' ? '✈️' : exp.category === 'Hôtel' ? '🏨' : exp.category === 'Activité' ? '🎟️' : '🛒'}
+                       </div>
+                       <div>
+                         <p className="font-bold text-foreground">{exp.title}</p>
+                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                           <span className="bg-background border border-border/50 px-2 py-0.5 rounded-md text-foreground font-medium">{exp.paid_by} a payé</span>
+                           <span>•</span>
+                           <span>
+                             {exp.split_type === 'equally' ? 'Divisé 50/50' : exp.split_type === 'paid_by_other_only' ? 'Pour l\'autre' : 'Dépense Perso'}
+                           </span>
+                         </div>
+                       </div>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-lg font-black">{Number(exp.amount).toFixed(2)} €</p>
+                       <p className="text-xs text-muted-foreground mt-1">{new Date(exp.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })}</p>
+                    </div>
+                 </div>
+               ))}
+             </div>
+           )}
         </div>
       </div>
     </div>

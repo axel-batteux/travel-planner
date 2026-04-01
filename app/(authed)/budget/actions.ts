@@ -6,16 +6,24 @@ export async function addExpense(formData: FormData) {
   const supabase = await createClient()
   if (!supabase) return
 
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return // Securite
+
   const title = formData.get('title') as string
   const amount = parseFloat(formData.get('amount') as string)
   const category = formData.get('category') as string
   const paid_by = formData.get('paid_by') as string
+  const split_type = formData.get('split_type') as string || 'equally'
 
-  await supabase.from('expenses').insert([{ title, amount, category, paid_by }])
+  await supabase.from('expenses').insert([{ 
+    title, 
+    amount, 
+    category, 
+    paid_by, 
+    split_type,
+    user_id: user.id 
+  }])
+  
   revalidatePath('/budget')
-}
-
-export async function addExpenseMock(formData: FormData) {
-  console.log("Mock mode: insertion ignorée pour l'outil de budget", formData.get('title'))
-  revalidatePath('/budget')
+  revalidatePath('/') // Dashboard update
 }
