@@ -1,9 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
-import { Plus, ArrowRightLeft, User, SplitSquareHorizontal, HandCoins } from 'lucide-react'
+import { Plus, ArrowRightLeft, User, SplitSquareHorizontal, Coins } from 'lucide-react'
 import { addExpense } from './actions'
 
 export default async function BudgetPage() {
   const supabase = await createClient()
+  if (!supabase) return null
   
   // 1. Fetch data
   const { data: expenses } = await supabase.from('expenses').select('*').order('date', { ascending: false })
@@ -39,7 +40,7 @@ export default async function BudgetPage() {
       {/* Résumé Immersif */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm overflow-hidden relative">
-           <div className="absolute top-0 right-0 p-4 opacity-5"><HandCoins size={80}/></div>
+           <div className="absolute top-0 right-0 p-4 opacity-5"><Coins size={80}/></div>
            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Total Dépensé</h2>
            <p className="text-5xl font-black bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{totalSpent.toFixed(2)} €</p>
         </div>
@@ -136,7 +137,7 @@ export default async function BudgetPage() {
            <h2 className="text-xl font-bold flex items-center gap-2">Historique des transactions</h2>
            {expenseList.length === 0 ? (
              <div className="bg-card/30 border border-dashed border-border rounded-3xl p-12 text-center">
-               <HandCoins className="mx-auto text-muted-foreground/30 mb-4" size={48} />
+               <Coins className="mx-auto text-muted-foreground/30 mb-4" size={48} />
                <p className="text-muted-foreground">Aucune dépense pour l'instant.</p>
              </div>
            ) : (
