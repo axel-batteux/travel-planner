@@ -1,70 +1,132 @@
 import { createClient } from '@/utils/supabase/server'
-import { Plane, Calendar, MapPin, Award } from 'lucide-react'
-
-const MOCK_ITINERARY = [
-  { id: '1', country: 'Japon', start_date: '2026-05-10', end_date: '2026-05-24', flight_details: 'AF276: CDG -> HND (Escale Dubai)', visa_required: false, visa_info: 'Exempté pour < 90 jours' },
-  { id: '2', country: 'Corée du Sud', start_date: '2026-05-24', end_date: '2026-06-05', flight_details: 'KE704: HND -> ICN', visa_required: true, visa_info: 'K-ETA obligatoire' },
-  { id: '3', country: 'Vietnam', start_date: '2026-06-05', end_date: '2026-06-25', flight_details: 'VN417: ICN -> HAN', visa_required: true, visa_info: 'E-Visa vietnamien' },
-]
+import { Map, MapPin, CalendarDays, Plus, Trash2, PlaneTakeoff, Train, Hotel, Activity } from 'lucide-react'
+import { addItineraryStage, deleteItineraryStage } from './actions'
 
 export default async function ItineraryPage() {
   const supabase = await createClient()
-  let itinerary = MOCK_ITINERARY
+  if (!supabase) return null
 
-  if (supabase) {
-    const { data } = await supabase.from('itinerary').select('*').order('start_date', { ascending: true })
-    if (data && data.length > 0) {
-      itinerary = data
+  const { data: stagesData } = await supabase.from('itinerary').select('*').order('start_date', { ascending: true })
+  const stages = stagesData || []
+
+  // Group by date (pure string YYYY-MM-DD)
+  const groupedStages = stages.reduce((acc, stage) => {
+    // start_date vient comme un timestamp
+    const dateObj = new Date(stage.start_date)
+    const dateKey = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    if (!acc[dateKey]) acc[dateKey] = []
+    acc[dateKey].push(stage)
+    return acc
+  }, {} as Record<string, any[]>)
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'Vol': return <PlaneTakeoff className="text-blue-500" size={20} />
+      case 'Train': return <Train className="text-emerald-500" size={20} />
+      case 'Logement': return <Hotel className="text-amber-500" size={20} />
+      case 'Activité': return <Activity className="text-rose-500" size={20} />
+      default: return <MapPin className="text-primary" size={20} />
     }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Itinéraire</h1>
-        <p className="text-muted-foreground mt-2">Votre parcours chronologique des pays visités.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Map className="text-primary" size={32} />
+          Plan de Route
+        </h1>
+        <p className="text-muted-foreground mt-2">La chronologie de votre aventure pas à pas.</p>
       </header>
 
-      <div className="relative border-l-2 border-primary/20 ml-3 md:ml-6 mt-8 space-y-12 pb-16">
-        {itinerary.map((step) => (
-          <div key={step.id} className="relative pl-8 md:pl-10">
-            {/* Timeline Dot */}
-            <div className="absolute w-6 h-6 bg-primary rounded-full -left-[13px] md:-left-[13px] top-1 border-4 border-background shadow-sm"></div>
-            
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <MapPin className="text-primary" /> {step.country}
-                </h2>
-                <div className="flex items-center gap-2 text-sm font-medium bg-muted px-3 py-1.5 rounded-full w-fit">
-                  <Calendar size={16} />
-                  <span>{new Date(step.start_date).toLocaleDateString('fr-FR')} - {new Date(step.end_date).toLocaleDateString('fr-FR')}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                {step.flight_details && (
-                  <div className="flex gap-3 items-start bg-accent/30 p-4 rounded-xl">
-                    <Plane className="text-primary mt-0.5" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-sm mb-1">Détails du Vol</h3>
-                      <p className="text-sm text-muted-foreground">{step.flight_details}</p>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="flex gap-3 items-start bg-orange-50 dark:bg-orange-950/20 p-4 rounded-xl border border-orange-100 dark:border-orange-900/50">
-                   <Award className={step.visa_required ? "text-orange-600" : "text-emerald-600"} size={20} />
-                   <div>
-                      <h3 className="font-semibold text-sm mb-1">{step.visa_required ? "Visa Requis" : "Pas de visa"}</h3>
-                      <p className="text-sm text-muted-foreground">{step.visa_info}</p>
-                   </div>
-                </div>
-              </div>
-            </div>
+      {/* Ajout Rapide Etape */}
+      <div className="bg-card/40 backdrop-blur-md border border-border/50 rounded-3xl p-6 shadow-sm">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Plus size={20} className="text-primary" /> Nouvelle étape</h2>
+        <form className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end" action={addItineraryStage}>
+          <div className="md:col-span-3">
+            <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block ml-1">Date</label>
+            <input type="date" name="start_date" required className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
           </div>
-        ))}
+          <div className="md:col-span-2">
+            <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block ml-1">Type</label>
+            <select name="type" className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+              <option value="Vol">✈️ Vol</option>
+              <option value="Train">🚆 Train</option>
+              <option value="Logement">🏨 Logement</option>
+              <option value="Activité">🎟️ Activité</option>
+              <option value="Etape">📍 Trajet</option>
+            </select>
+          </div>
+          <div className="md:col-span-5">
+            <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block ml-1">Titre de l'étape</label>
+            <input name="title" required className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/30" placeholder="Ex: Vol AF409, Hôtel Shibuya..." />
+          </div>
+          <div className="md:col-span-2">
+            <button type="submit" className="w-full bg-primary text-primary-foreground font-bold h-[46px] rounded-xl transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-md shadow-primary/20">
+              Ajouter
+            </button>
+          </div>
+        </form>
       </div>
+
+      {stages.length === 0 ? (
+        <div className="text-center p-12 border-2 border-dashed rounded-3xl mt-8">
+          <Map className="mx-auto text-muted-foreground/30 mb-4" size={48} />
+          <p className="text-muted-foreground font-medium">Votre itinéraire est vierge. Où allez-vous ?</p>
+        </div>
+      ) : (
+        <div className="relative mt-12 pl-4 md:pl-0">
+          <div className="hidden md:block absolute left-1/2 top-4 bottom-0 w-1 bg-border/50 -translate-x-1/2 rounded-full" />
+          
+          <div className="space-y-12">
+            {Object.entries(groupedStages).map(([date, dayStages], dayIndex) => (
+              <div key={date} className="relative">
+                {/* Date Badge */}
+                <div className="sticky top-4 z-10 flex md:justify-center mb-6">
+                  <div className="bg-background/80 backdrop-blur-xl border shadow-sm px-6 py-2 rounded-full flex items-center gap-2">
+                    <CalendarDays size={16} className="text-primary" />
+                    <span className="font-bold text-sm capitalize">{date}</span>
+                  </div>
+                </div>
+
+                {/* Stages for this day */}
+                <div className="space-y-6">
+                  {(dayStages as any[]).map((stage: any, i: number) => (
+                    <div key={stage.id} className="relative flex md:justify-between items-center group w-full">
+                      
+                      {/* Ligne au centre sur mobile/desktop */}
+                      <div className="hidden md:block absolute left-1/2 w-8 h-px bg-border/50 -translate-x-1/2" />
+                      
+                      <div className={`w-full md:w-[45%] ${i % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8 md:ml-auto'}`}>
+                        <div className="bg-card border border-border/50 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative">
+                          {/* Point Timeline */}
+                          <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full hidden md:block ${i % 2 === 0 ? '-right-[18px]' : '-left-[18px]'}`} />
+                          
+                          <div className={`flex items-start gap-4 ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                              {getTypeIcon(stage.type)}
+                            </div>
+                            <div>
+                               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{stage.type}</p>
+                               <h3 className="text-lg font-bold leading-tight">{stage.title}</h3>
+                            </div>
+                          </div>
+
+                          <form action={async () => { 'use server'; await deleteItineraryStage(stage.id) }} className="absolute top-4 right-4">
+                            <button className="text-muted-foreground/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-lg hover:bg-muted">
+                              <Trash2 size={16} />
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
