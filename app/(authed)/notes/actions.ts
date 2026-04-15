@@ -42,3 +42,11 @@ export async function deleteNote(id: string) {
   revalidatePath('/notes')
   redirect('/notes')
 }
+
+export async function updateNoteTitle(id: string, title: string) {
+  const supabase = await createClient()
+  if (!supabase) return
+
+  await supabase.from('notes').update({ title }).eq('id', id)
+  revalidatePath(`/notes/${id}`)
+}

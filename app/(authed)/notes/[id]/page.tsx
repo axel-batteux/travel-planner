@@ -3,6 +3,7 @@ import { ArrowLeft, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import Editor from './Editor'
+import TitleInput from './TitleInput'
 import { deleteNote } from '../actions'
 
 export default async function NotePage({ params }: { params: Promise<{ id: string }> }) {
@@ -34,9 +35,7 @@ export default async function NotePage({ params }: { params: Promise<{ id: strin
       </header>
       
       <main className="bg-card border border-border/50 rounded-[40px] p-8 md:p-12 shadow-sm min-h-[70vh]">
-        <h1 className="text-4xl md:text-5xl font-black mb-8 pb-4 outline-none border-b border-border/30 bg-transparent placeholder:text-muted-foreground/30 tracking-tight">
-          {note.title}
-        </h1>
+        <TitleInput id={note.id} initialTitle={note.title || ''} />
         
         <Editor id={note.id} initialContent={note.content || ''} />
       </main>
