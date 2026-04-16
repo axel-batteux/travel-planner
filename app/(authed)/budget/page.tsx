@@ -11,7 +11,7 @@ export default async function BudgetPage() {
   const expenseList = expenses || []
 
   // 2. Calcul du Tricount
-  // Axel > 0 veut dire que le Partenaire doit de l'argent à Axel
+  // Axel > 0 veut dire que Enola doit de l'argent à Axel
   let balanceAxel = 0
   let totalSpent = 0
   let totalAxelPaid = 0
@@ -58,7 +58,7 @@ export default async function BudgetPage() {
                  <ArrowRightLeft className="text-muted-foreground mb-4 opacity-50" size={24} />
                  {balanceAxel > 0 ? (
                    <span className="text-sm font-bold bg-green-500/10 text-green-600 dark:text-green-400 px-4 py-2 rounded-xl ring-1 ring-green-500/20 shadow-sm transition-all hover:scale-105">
-                     Le partenaire doit {balanceAxel.toFixed(2)} €
+                     Enola doit {balanceAxel.toFixed(2)} €
                    </span>
                  ) : balanceAxel < 0 ? (
                    <span className="text-sm font-bold bg-amber-500/10 text-amber-600 dark:text-amber-500 px-4 py-2 rounded-xl ring-1 ring-amber-500/20 shadow-sm transition-all hover:scale-105">
@@ -73,7 +73,7 @@ export default async function BudgetPage() {
               
               <div className="text-center min-w-[100px]">
                  <div className="w-12 h-12 bg-secondary/50 text-secondary-foreground rounded-full flex items-center justify-center mx-auto mb-2"><User size={20}/></div>
-                 <p className="text-sm font-medium">Partenaire</p>
+                 <p className="text-sm font-medium">Enola</p>
                  <p className="text-xl font-bold">{totalPartnerPaid.toFixed(2)} €</p>
               </div>
            </div>
@@ -100,7 +100,7 @@ export default async function BudgetPage() {
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Payé par</label>
                 <select name="paid_by" className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer">
                   <option value="Axel">Axel</option>
-                  <option value="Partenaire">Partenaire</option>
+                  <option value="Enola">Enola</option>
                 </select>
               </div>
             </div>

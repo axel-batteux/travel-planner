@@ -95,7 +95,7 @@ export default async function ChecklistsPage() {
             <select name="assigned_to" className="bg-background/50 border border-border/50 rounded-xl px-3 py-3 text-xs font-semibold text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
               <option value="Tous">Pour tous</option>
               <option value="Axel">Axel</option>
-              <option value="Partenaire">Partenaire</option>
+              <option value="Enola">Enola</option>
             </select>
 
             <button type="submit" className="bg-primary text-primary-foreground min-w-[48px] flex items-center justify-center rounded-xl transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">

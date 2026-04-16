@@ -3,7 +3,7 @@ import { FolderOpen, FileText, Download } from 'lucide-react'
 
 const MOCK_DOCS = [
   { id: '1', title: 'Passeport Axel', category: 'Passeports', file_url: '#' },
-  { id: '2', title: 'Passeport Partenaire', category: 'Passeports', file_url: '#' },
+  { id: '2', title: 'Passeport Enola', category: 'Passeports', file_url: '#' },
   { id: '3', title: 'Assurance CB MasterCard', category: 'Assurances', file_url: '#' },
   { id: '4', title: 'E-Visa Corée du Sud', category: 'Visas', file_url: '#' },
   { id: '5', title: 'Certificats de Vaccination', category: 'Santé', file_url: '#' },

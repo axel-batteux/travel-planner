@@ -37,11 +37,9 @@ const MenuBar = ({ editor }: { editor: any }) => {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
   }, [editor])
 
-  const setTextColor = useCallback(() => {
-    const color = window.prompt('Couleur (ex: #ff0000 ou red ou blue):', '#000000')
-    if (color) {
-      editor.chain().focus().setColor(color).run()
-    }
+  const handleColorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const color = e.target.value
+    editor.chain().focus().setColor(color).run()
   }, [editor])
 
   const isActiveClass = "bg-primary/20 text-primary border-primary/20"
@@ -132,11 +130,16 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <div className="w-px h-8 bg-border/50 my-auto mx-1" />
 
-      <button onClick={setTextColor} className={`${btnBase} ${inactiveClass}`} title="Couleur du texte">
-        <Palette size={18} />
-      </button>
+      <div className={`${btnBase} ${inactiveClass} overflow-hidden p-0 relative w-9 h-9 flex items-center justify-center`} title="Couleur du texte">
+        <Palette size={18} className="absolute pointer-events-none" />
+        <input 
+          type="color" 
+          onChange={handleColorChange}
+          className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+        />
+      </div>
 
-      <button onClick={addImage} className={`${btnBase} ${inactiveClass}`} title="Insérer une image (URL)">
+      <button onClick={addImage} className={`${btnBase} ${inactiveClass} w-9 h-9 flex items-center justify-center p-0`} title="Insérer une image (URL)">
         <ImageIcon size={18} />
       </button>
 
@@ -152,7 +155,7 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
 
   // Prevent data loss: handle raw text from older version gracefully by adding HTML line breaks
   const formattedInitialContent = initialContent && !initialContent.includes('<') && !initialContent.includes('>') 
-    ? initialContent.split('\n').join('<br>') 
+    ? initialContent.split('\n').filter(line => line.trim() !== '').map(line => `<p>${line}</p>`).join('')
     : initialContent;
     
   const editor = useEditor({
@@ -213,7 +216,7 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
       
       <MenuBar editor={editor} />
       
-      <div className="tiptap-wrapper caret-primary text-foreground cursor-text">
+      <div className="tiptap-wrapper text-foreground cursor-text">
         <EditorContent editor={editor} className="cursor-text tiptap-content" />
       </div>
       
@@ -295,10 +298,13 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           margin: 1.5em 0;
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        /* Custom selection color to fix invisible cursor issues */
+        /* Enhance cursor visibility / selection styling */
         .tiptap-wrapper .ProseMirror *::selection {
           background-color: var(--primary);
           color: white;
+        }
+        .tiptap-wrapper .ProseMirror {
+          caret-color: var(--foreground);
         }
       `}} />
     </div>
