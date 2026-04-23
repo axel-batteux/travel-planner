@@ -1,6 +1,9 @@
 import { createClient } from '@/utils/supabase/server'
 import { Map, MapPin, CalendarDays, Plus, Trash2, PlaneTakeoff, Train, Hotel, Activity } from 'lucide-react'
 import { addItineraryStage, deleteItineraryStage } from './actions'
+import dynamic from 'next/dynamic'
+
+const ItineraryMap = dynamic(() => import('@/components/map/ItineraryMap'), { ssr: false })
 
 export default async function ItineraryPage() {
   const supabase = await createClient()
@@ -30,7 +33,7 @@ export default async function ItineraryPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-7xl mx-auto">
       <header>
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
           <Map className="text-primary" size={32} />
@@ -62,7 +65,7 @@ export default async function ItineraryPage() {
             <input name="title" required className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/30" placeholder="Ex: Vol AF409, Hôtel Shibuya..." />
           </div>
           <div className="md:col-span-2">
-            <button type="submit" className="w-full bg-primary text-primary-foreground font-bold h-[46px] rounded-xl transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-md shadow-primary/20">
+            <button type="submit" className="w-full bg-primary text-primary-foreground font-bold h-[46px] rounded-xl transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-md shadow-primary/20 cursor-pointer">
               Ajouter
             </button>
           </div>
@@ -70,60 +73,71 @@ export default async function ItineraryPage() {
       </div>
 
       {stages.length === 0 ? (
-        <div className="text-center p-12 border-2 border-dashed rounded-3xl mt-8">
+        <div className="text-center p-12 border-2 border-dashed rounded-3xl mt-8 flex flex-col items-center">
           <Map className="mx-auto text-muted-foreground/30 mb-4" size={48} />
-          <p className="text-muted-foreground font-medium">Votre itinéraire est vierge. Où allez-vous ?</p>
+          <p className="text-muted-foreground font-medium mb-8">Votre itinéraire est vierge. Où allez-vous ?</p>
+          <div className="w-full h-80 max-w-2xl mx-auto rounded-3xl overflow-hidden border border-border/50 opacity-50 grayscale pointer-events-none">
+             <ItineraryMap stages={[]} />
+          </div>
         </div>
       ) : (
-        <div className="relative mt-12 pl-4 md:pl-0">
-          <div className="hidden md:block absolute left-1/2 top-4 bottom-0 w-1 bg-border/50 -translate-x-1/2 rounded-full" />
-          
-          <div className="space-y-12">
-            {Object.entries(groupedStages).map(([date, dayStages], dayIndex) => (
-              <div key={date} className="relative">
-                {/* Date Badge */}
-                <div className="sticky top-4 z-10 flex md:justify-center mb-6">
-                  <div className="bg-background/80 backdrop-blur-xl border shadow-sm px-6 py-2 rounded-full flex items-center gap-2">
-                    <CalendarDays size={16} className="text-primary" />
-                    <span className="font-bold text-sm capitalize">{date}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
+          {/* Planisphère sticky */}
+          <div className="hidden lg:block h-[calc(100vh-140px)] sticky top-6">
+            <ItineraryMap stages={stagesData || []} />
+          </div>
+
+          <div className="relative pl-4 md:pl-0">
+            <div className="hidden md:block absolute left-[28px] top-4 bottom-0 w-1 bg-border/50 rounded-full" />
+            
+            <div className="space-y-12">
+              {/* Carte mobile - affichée au centre en haut si mobile */}
+              <div className="lg:hidden h-[300px] mb-8 w-full rounded-2xl overflow-hidden">
+                <ItineraryMap stages={stagesData || []} />
+              </div>
+
+              {Object.entries(groupedStages).map(([date, dayStages], dayIndex) => (
+                <div key={date} className="relative">
+                  {/* Date Badge */}
+                  <div className="sticky top-4 z-10 flex mb-6 ml-6 md:ml-0">
+                    <div className="bg-background/80 backdrop-blur-xl border shadow-sm px-6 py-2 rounded-full flex items-center gap-2">
+                      <CalendarDays size={16} className="text-primary" />
+                      <span className="font-bold text-sm capitalize">{date}</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Stages for this day */}
-                <div className="space-y-6">
-                  {(dayStages as any[]).map((stage: any, i: number) => (
-                    <div key={stage.id} className="relative flex md:justify-between items-center group w-full">
-                      
-                      {/* Ligne au centre sur mobile/desktop */}
-                      <div className="hidden md:block absolute left-1/2 w-8 h-px bg-border/50 -translate-x-1/2" />
-                      
-                      <div className={`w-full md:w-[45%] ${i % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8 md:ml-auto'}`}>
-                        <div className="bg-card border border-border/50 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative">
-                          {/* Point Timeline */}
-                          <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full hidden md:block ${i % 2 === 0 ? '-right-[18px]' : '-left-[18px]'}`} />
-                          
-                          <div className={`flex items-start gap-4 ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
-                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                              {getTypeIcon(stage.type)}
+                  {/* Stages for this day */}
+                  <div className="space-y-6">
+                    {(dayStages as any[]).map((stage: any, i: number) => (
+                      <div key={stage.id} className="relative flex items-center group w-full pl-6 md:pl-16">
+                        <div className="w-full">
+                          <div className="bg-card border border-border/50 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative">
+                            {/* Point Timeline */}
+                            <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full hidden md:block -left-[54px]" />
+                            
+                            <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                {getTypeIcon(stage.type)}
+                              </div>
+                              <div>
+                                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{stage.type}</p>
+                                 <h3 className="text-lg font-bold leading-tight">{stage.title}</h3>
+                              </div>
                             </div>
-                            <div>
-                               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{stage.type}</p>
-                               <h3 className="text-lg font-bold leading-tight">{stage.title}</h3>
-                            </div>
+
+                            <form action={async () => { 'use server'; await deleteItineraryStage(stage.id) }} className="absolute top-4 right-4">
+                              <button type="submit" className="text-muted-foreground/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-lg hover:bg-muted cursor-pointer">
+                                <Trash2 size={16} />
+                              </button>
+                            </form>
                           </div>
-
-                          <form action={async () => { 'use server'; await deleteItineraryStage(stage.id) }} className="absolute top-4 right-4">
-                            <button className="text-muted-foreground/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-lg hover:bg-muted">
-                              <Trash2 size={16} />
-                            </button>
-                          </form>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}

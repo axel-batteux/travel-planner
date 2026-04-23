@@ -19,9 +19,10 @@ export async function addItineraryStage(formData: FormData) {
   if (!title || !start_date) return
 
   // Utilisation directe de la date qui arrive au format YYYY-MM-DD
-  const formattedDate = new Date(start_date).toISOString()
+  // On force l'heure à 12:00:00 pour éviter tout glissement dû au fuseau horaire
+  const formattedDate = new Date(`${start_date}T12:00:00.000Z`).toISOString()
 
-  await supabase.from('itinerary').insert([{
+  const { error } = await supabase.from('itinerary').insert([{
     title,
     type,
     start_date: formattedDate,
@@ -30,7 +31,12 @@ export async function addItineraryStage(formData: FormData) {
     user_id: user.id
   }])
 
-  revalidatePath('/itinerary')
+  if (error) {
+    console.error('Error inserting itinerary stage:', error)
+  }
+
+  revalidatePath('/(authed)/itinerary', 'page')
+  revalidatePath('/itinerary', 'page')
 }
 
 export async function deleteItineraryStage(id: string) {

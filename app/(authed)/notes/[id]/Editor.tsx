@@ -12,14 +12,52 @@ import { TableRow } from '@tiptap/extension-table-row'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TextAlign } from '@tiptap/extension-text-align'
+import { Extension } from '@tiptap/core'
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3, AlignLeft, AlignCenter,
   AlignRight, AlignJustify, ImageIcon, Table as TableIcon,
-  Palette
+  Palette, Baseline
 } from 'lucide-react'
 
 import { updateNote } from '../actions'
+
+const LineHeight = Extension.create({
+  name: 'lineHeight',
+  addOptions() {
+    return {
+      types: ['paragraph', 'heading'],
+      defaultLineHeight: '1.5',
+    }
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          lineHeight: {
+            default: this.options.defaultLineHeight,
+            parseHTML: element => element.style.lineHeight || this.options.defaultLineHeight,
+            renderHTML: attributes => {
+              if (attributes.lineHeight === this.options.defaultLineHeight) return {}
+              return { style: `line-height: ${attributes.lineHeight}` }
+            },
+          },
+        },
+      },
+    ]
+  },
+  addCommands() {
+    return {
+      setLineHeight: (lineHeight: string) => ({ commands }) => {
+        return this.options.types.every((type: string) => commands.updateAttributes(type, { lineHeight }))
+      },
+      unsetLineHeight: () => ({ commands }) => {
+        return this.options.types.every((type: string) => commands.resetAttributes(type, 'lineHeight'))
+      },
+    }
+  },
+})
 
 const MenuBar = ({ editor }: { editor: any }) => {
   if (!editor) {
@@ -139,6 +177,23 @@ const MenuBar = ({ editor }: { editor: any }) => {
         />
       </div>
 
+      <div className="relative group flex items-center justify-center">
+        <button className={`${btnBase} ${inactiveClass} flex items-center gap-1`} title="Interligne">
+          <Baseline size={18} />
+        </button>
+        <div className="absolute top-10 left-0 bg-popover text-popover-foreground border bg-background shadow-md rounded-xl py-2 hidden group-hover:block z-50 w-24">
+          {['1.0', '1.15', '1.5', '2.0', '2.5'].map((lh) => (
+            <button
+              key={lh}
+              onClick={() => editor.chain().focus().setLineHeight(lh).run()}
+              className={`w-full text-left px-4 py-1.5 text-sm hover:bg-muted ${editor.isActive({ lineHeight: lh }) ? 'bg-primary/10 text-primary font-bold' : ''}`}
+            >
+              {lh}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button onClick={addImage} className={`${btnBase} ${inactiveClass} w-9 h-9 flex items-center justify-center p-0`} title="Insérer une image (URL)">
         <ImageIcon size={18} />
       </button>
@@ -181,6 +236,7 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      LineHeight,
     ],
     content: formattedInitialContent,
     editorProps: {
@@ -304,7 +360,7 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           color: white;
         }
         .tiptap-wrapper .ProseMirror {
-          caret-color: var(--foreground);
+          caret-color: inherit;
         }
       `}} />
     </div>
