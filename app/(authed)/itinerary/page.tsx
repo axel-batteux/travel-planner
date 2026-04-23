@@ -1,9 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { Map, MapPin, CalendarDays, Plus, Trash2, PlaneTakeoff, Train, Hotel, Activity } from 'lucide-react'
 import { addItineraryStage, deleteItineraryStage } from './actions'
-import dynamic from 'next/dynamic'
-
-const ItineraryMap = dynamic(() => import('@/components/map/ItineraryMap'), { ssr: false })
+import MapWrapper from '@/components/map/MapWrapper'
 
 export default async function ItineraryPage() {
   const supabase = await createClient()
@@ -77,14 +75,14 @@ export default async function ItineraryPage() {
           <Map className="mx-auto text-muted-foreground/30 mb-4" size={48} />
           <p className="text-muted-foreground font-medium mb-8">Votre itinéraire est vierge. Où allez-vous ?</p>
           <div className="w-full h-80 max-w-2xl mx-auto rounded-3xl overflow-hidden border border-border/50 opacity-50 grayscale pointer-events-none">
-             <ItineraryMap stages={[]} />
+             <MapWrapper stages={[]} />
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
           {/* Planisphère sticky */}
           <div className="hidden lg:block h-[calc(100vh-140px)] sticky top-6">
-            <ItineraryMap stages={stagesData || []} />
+            <MapWrapper stages={stagesData || []} />
           </div>
 
           <div className="relative pl-4 md:pl-0">
@@ -93,7 +91,7 @@ export default async function ItineraryPage() {
             <div className="space-y-12">
               {/* Carte mobile - affichée au centre en haut si mobile */}
               <div className="lg:hidden h-[300px] mb-8 w-full rounded-2xl overflow-hidden">
-                <ItineraryMap stages={stagesData || []} />
+                <MapWrapper stages={stagesData || []} />
               </div>
 
               {Object.entries(groupedStages).map(([date, dayStages], dayIndex) => (
