@@ -35,6 +35,7 @@ export function DesktopSidebar() {
             <Link
               key={item.name}
               href={item.href}
+              prefetch={true}
               className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                 isReallyActive
                   ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"

@@ -360,8 +360,8 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           color: white;
         }
         .tiptap-wrapper .ProseMirror {
-          cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='24'><path d='M8 3v18m-4-18h8m-8 18h8' stroke='white' stroke-width='4'/><path d='M8 3v18m-4-18h8m-8 18h8' stroke='black' stroke-width='1.5'/></svg>") 8 12, text;
-          caret-color: inherit;
+          cursor: text;
+          caret-color: var(--primary);
         }
       `}} />
     </div>
