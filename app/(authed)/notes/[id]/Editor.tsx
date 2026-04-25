@@ -272,8 +272,8 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
       
       <MenuBar editor={editor} />
       
-      <div className="tiptap-wrapper text-foreground cursor-text">
-        <EditorContent editor={editor} className="cursor-text tiptap-content" />
+      <div className="tiptap-wrapper bg-white text-black rounded-3xl p-8 md:p-12 shadow-inner border border-border/50 cursor-text">
+        <EditorContent editor={editor} className="cursor-text tiptap-content text-black" />
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `
@@ -354,14 +354,32 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           margin: 1.5em 0;
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        /* Enhance cursor visibility / selection styling */
-        .tiptap-wrapper .ProseMirror *::selection {
-          background-color: var(--primary);
-          color: white;
-        }
+        /* Force colors to be readable (Black on White) even in Dark Mode */
         .tiptap-wrapper .ProseMirror {
+          color: #1a1a1a !important;
+          background-color: #ffffff !important;
           cursor: text;
-          caret-color: var(--foreground);
+          caret-color: #000000 !important;
+        }
+        .tiptap-wrapper .ProseMirror h1, 
+        .tiptap-wrapper .ProseMirror h2, 
+        .tiptap-wrapper .ProseMirror h3,
+        .tiptap-wrapper .ProseMirror p,
+        .tiptap-wrapper .ProseMirror li {
+           color: #1a1a1a !important;
+        }
+        .tiptap-wrapper .ProseMirror *::selection {
+          background-color: #2563eb !important;
+          color: white !important;
+        }
+        .tiptap-wrapper .ProseMirror table td,
+        .tiptap-wrapper .ProseMirror table th {
+          border: 1px solid #e5e7eb !important;
+          background: #ffffff !important;
+          color: #1a1a1a !important;
+        }
+        .tiptap-wrapper .ProseMirror table th {
+          background-color: #f3f4f6 !important;
         }
       `}} />
     </div>
