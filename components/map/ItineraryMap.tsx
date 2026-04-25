@@ -58,13 +58,13 @@ export default function ItineraryMap({
         
         // Détecter si c'est un trajet (2 villes)
         if (cleaned.includes('-')) {
-            places = cleaned.split('-').map(p => p.trim())
+            places = cleaned.split('-').map((p: string) => p.trim())
         } else if (cleaned.toLowerCase().includes(' a ')) {
-            places = cleaned.split(/ a /i).map(p => p.trim())
+            places = cleaned.split(/ a /i).map((p: string) => p.trim())
         } else if (cleaned.toLowerCase().includes(' à ')) {
-            places = cleaned.split(/ à /i).map(p => p.trim())
+            places = cleaned.split(/ à /i).map((p: string) => p.trim())
         } else if (cleaned.toLowerCase().includes(' vers ')) {
-            places = cleaned.split(/ vers /i).map(p => p.trim())
+            places = cleaned.split(/ vers /i).map((p: string) => p.trim())
         } else if (['Vol', 'Train', 'Bus', 'Trajet'].includes(stage.type) || /^(Vol|Train|Trajet)/i.test(text)) {
             const words = cleaned.split(/\s+/)
             if (words.length === 2) {
