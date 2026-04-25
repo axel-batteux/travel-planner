@@ -62,3 +62,44 @@ export async function deleteItineraryStage(id: string) {
   await supabase.from('itinerary').delete().eq('id', id)
   revalidatePath('/itinerary')
 }
+
+export async function updateItineraryStage(formData: FormData) {
+  let errorMessage = ""
+
+  try {
+    const supabase = await createClient()
+    if (!supabase) throw new Error("Supabase client is null")
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error(`User auth failed: ${authError?.message || 'No user found'}`)
+
+    const id = formData.get('id') as string
+    const title = formData.get('title') as string
+    const type = formData.get('type') as string || 'Etape'
+    const start_date = formData.get('start_date') as string
+    
+    if (!id || !title || !start_date) throw new Error("Données manquantes (titre ou date)")
+
+    const formattedDate = new Date(`${start_date}T12:00:00.000Z`).toISOString()
+
+    const { error } = await supabase.from('itinerary').update({
+      title,
+      type,
+      start_date: formattedDate
+    }).eq('id', id).eq('user_id', user.id) // check user_id par sécurité
+
+    if (error) {
+      throw new Error(`DB Update Error: ${error.message}`)
+    }
+
+  } catch (err: any) {
+    errorMessage = err.message || "Erreur de modification"
+  }
+
+  if (errorMessage) {
+    redirect(`/itinerary?error=${encodeURIComponent(errorMessage)}`)
+  }
+
+  revalidatePath('/itinerary', 'page')
+  revalidatePath('/itinerary', 'layout')
+}

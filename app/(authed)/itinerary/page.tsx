@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { Map, MapPin, CalendarDays, Plus, Trash2, PlaneTakeoff, Train, Hotel, Activity } from 'lucide-react'
-import { addItineraryStage, deleteItineraryStage } from './actions'
+import { addItineraryStage } from './actions'
 import MapWrapper from '@/components/map/MapWrapper'
+import ItineraryStageCard from '@/components/ItineraryStageCard'
 
 export default async function ItineraryPage(props: { searchParams?: Promise<{ error?: string }> }) {
   const params = await props.searchParams
@@ -117,30 +118,9 @@ export default async function ItineraryPage(props: { searchParams?: Promise<{ er
 
                   {/* Stages for this day */}
                   <div className="space-y-6">
-                    {(dayStages as any[]).map((stage: any, i: number) => (
+                    {(dayStages as any[]).map((stage: any) => (
                       <div key={stage.id} className="relative flex items-center group w-full pl-6 md:pl-16">
-                        <div className="w-full">
-                          <div className="bg-card border border-border/50 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative">
-                            {/* Point Timeline */}
-                            <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full hidden md:block -left-[54px]" />
-                            
-                            <div className="flex items-start gap-4">
-                              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                                {getTypeIcon(stage.type)}
-                              </div>
-                              <div>
-                                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{stage.type}</p>
-                                 <h3 className="text-lg font-bold leading-tight">{stage.title}</h3>
-                              </div>
-                            </div>
-
-                            <form action={async () => { 'use server'; await deleteItineraryStage(stage.id) }} className="absolute top-4 right-4">
-                              <button type="submit" className="text-muted-foreground/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-lg hover:bg-muted cursor-pointer">
-                                <Trash2 size={16} />
-                              </button>
-                            </form>
-                          </div>
-                        </div>
+                        <ItineraryStageCard stage={stage} />
                       </div>
                     ))}
                   </div>
