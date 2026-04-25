@@ -364,13 +364,13 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           min-height: 400px;
           outline: none !important;
           cursor: text !important;
-          /* Force caret (curseur clignotant) to be black and thick */
+          /* Force caret (curseur clignotant) to be black on the white page */
           caret-color: #000000 !important;
+          color: #000000; /* Default color, can be overridden by inline styles */
         }
 
-        /* Ensure all nested elements inherit the black caret */
+        /* Ensure caret is black even if nested, but DON'T override text colors */
         .tiptap-wrapper .ProseMirror * {
-           color: #000000 !important;
            caret-color: #000000 !important;
         }
         
@@ -379,7 +379,7 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
         .tiptap-wrapper .ProseMirror h3,
         .tiptap-wrapper .ProseMirror p,
         .tiptap-wrapper .ProseMirror li {
-           color: #000000 !important;
+           color: inherit; /* Allow color extension to work */
         }
         
         .tiptap-wrapper .ProseMirror *::selection {
