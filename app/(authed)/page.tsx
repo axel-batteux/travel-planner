@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { Sparkles, Map, BookOpen, AlertTriangle, Phone, PlaneTakeoff, Train, Hotel, Activity, MapPin, Navigation } from 'lucide-react'
+import { Sparkles, Map, BookOpen, PlaneTakeoff, Train, Hotel, Activity, MapPin, Navigation } from 'lucide-react'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -65,11 +65,9 @@ export default async function Home() {
            )}
         </div>
 
-        {/* Colonne latérale */}
+        {/* Budget Dynamique */}
         <div className="lg:col-span-4 space-y-6">
-
-          {/* Budget Dynamique */}
-          <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-border flex flex-col justify-between group hover:border-primary/50 transition-colors">
+          <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-border flex flex-col justify-between group hover:border-primary/50 transition-colors h-full">
             <div>
               <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Total Dépensé</h2>
               <p className="text-4xl font-black bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{totalSpent.toFixed(2)} €</p>
