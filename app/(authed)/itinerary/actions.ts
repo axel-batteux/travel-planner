@@ -27,12 +27,14 @@ export async function addItineraryStage(formData: FormData) {
     // On force l'heure à 12:00:00 pour éviter tout glissement dû au fuseau horaire
     const formattedDate = new Date(`${start_date}T12:00:00.000Z`).toISOString()
 
-    console.log("Adding itinerary with data:", { title, type, start_date, formattedDate })
+    console.log("Adding itinerary with data:", { title, type, start_date, location_name, maps_url, formattedDate })
 
     const { error } = await supabase.from('itinerary').insert([{
       title,
       type,
       start_date: formattedDate,
+      location_name,
+      maps_url,
       user_id: user.id
     }])
 
