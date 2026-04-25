@@ -9,7 +9,9 @@ export default async function BudgetPage() {
   
   // 1. Fetch data
   const { data: expenses } = await supabase.from('expenses').select('*').order('date', { ascending: false })
+  const { data: stagesData } = await supabase.from('itinerary').select('id, title').order('start_date', { ascending: true })
   const expenseList = expenses || []
+  const stages = stagesData || []
 
   // 2. Calcul du Tricount
   // Axel > 0 veut dire que Enola doit de l'argent à Axel
@@ -120,16 +122,27 @@ export default async function BudgetPage() {
                </select>
             </div>
 
-            <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Catégorie</label>
-              <select name="category" className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
-                <option value="Nourriture">🍔 Nourriture</option>
-                <option value="Transport">🚕 Transport</option>
-                <option value="Vol">✈️ Vol</option>
-                <option value="Hôtel">🏨 Logement</option>
-                <option value="Activité">🎟️ Activité</option>
-                <option value="Autre">🛒 Autre</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Catégorie</label>
+                <select name="category" className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
+                  <option value="Nourriture">🍔 Nourriture</option>
+                  <option value="Transport">🚕 Transport</option>
+                  <option value="Vol">✈️ Vol</option>
+                  <option value="Hôtel">🏨 Logement</option>
+                  <option value="Activité">🎟️ Activité</option>
+                  <option value="Autre">🛒 Autre</option>
+                </select>
+              </div>
+              <div>
+                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block text-primary">Lier à l'itinéraire</label>
+                 <select name="itinerary_id" className="w-full bg-primary/5 border border-primary/20 text-primary rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all cursor-pointer">
+                   <option value="">Aucun lien</option>
+                   {stages.map(stage => (
+                     <option key={stage.id} value={stage.id}>{stage.title}</option>
+                   ))}
+                 </select>
+              </div>
             </div>
 
             <button type="submit" className="w-full bg-primary text-primary-foreground font-bold rounded-xl py-4 mt-4 transition-all hover:bg-primary/90 hover:scale-[1.02] shadow-lg shadow-primary/20 active:scale-95">
@@ -152,12 +165,19 @@ export default async function BudgetPage() {
                {expenseList.map((exp) => (
                  <div key={exp.id} className="group bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-muted/50 hover:border-border cursor-default">
                     <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-xl shadow-inner border border-background">
+                       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-xl shadow-inner border border-background shrink-0">
                          {exp.category === 'Nourriture' ? '🍔' : exp.category === 'Transport' ? '🚕' : exp.category === 'Vol' ? '✈️' : exp.category === 'Hôtel' ? '🏨' : exp.category === 'Activité' ? '🎟️' : '🛒'}
                        </div>
                        <div>
-                         <p className="font-bold text-foreground">{exp.title}</p>
-                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                         <p className="font-bold text-foreground flex items-center gap-2">
+                           {exp.title}
+                           {exp.itinerary_id && stages.find(s => s.id === exp.itinerary_id) && (
+                             <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded uppercase tracking-wider">
+                               📍 {stages.find(s => s.id === exp.itinerary_id)?.title}
+                             </span>
+                           )}
+                         </p>
+                         <div className="flex items-center flex-wrap gap-2 text-xs text-muted-foreground mt-1">
                            <span className="bg-background border border-border/50 px-2 py-0.5 rounded-md text-foreground font-medium">{exp.paid_by} a payé</span>
                            <span>•</span>
                            <span>

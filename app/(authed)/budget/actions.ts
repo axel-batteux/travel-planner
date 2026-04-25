@@ -14,6 +14,7 @@ export async function addExpense(formData: FormData) {
   const category = formData.get('category') as string
   const paid_by = formData.get('paid_by') as string
   const split_type = formData.get('split_type') as string || 'equally'
+  const itinerary_id = formData.get('itinerary_id') as string
 
   await supabase.from('expenses').insert([{ 
     title, 
@@ -21,6 +22,7 @@ export async function addExpense(formData: FormData) {
     category, 
     paid_by, 
     split_type,
+    itinerary_id: itinerary_id || null,
     user_id: user.id 
   }])
   

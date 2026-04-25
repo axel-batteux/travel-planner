@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
-import { Sparkles, MapPin, Plus, Trash2, CheckCircle2 } from 'lucide-react'
-import { addBucketItem, toggleVisited, deleteBucketItem } from './actions'
+import { Sparkles, MapPin, Plus, Trash2, CheckCircle2, Navigation } from 'lucide-react'
+import { addBucketItem, toggleVisited, deleteBucketItem, convertBucketToItinerary } from './actions'
 
 export default async function BucketlistPage() {
   const supabase = await createClient()
@@ -77,11 +77,34 @@ export default async function BucketlistPage() {
             
             <h3 className={`text-xl font-bold font-serif mb-2 leading-tight ${item.is_visited ? 'line-through opacity-50' : ''}`}>{item.title}</h3>
             
-            <div className="mt-auto pt-4 flex gap-2">
+            <div className="mt-auto pt-4 flex flex-wrap gap-2">
               {item.maps_url && (
                 <a href={item.maps_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-full hover:bg-black/20 transition-colors">
                   <MapPin size={14} /> Voir sur la carte
                 </a>
+              )}
+              
+              {!item.is_visited && (
+                <details className="group/details relative">
+                  <summary className="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-200 px-3 py-1.5 rounded-full hover:bg-amber-500/30 transition-colors cursor-pointer list-none">
+                    <Navigation size={14} /> Ajouter à l'itinéraire
+                  </summary>
+                  <div className="absolute bottom-full mb-2 left-0 min-w-[200px] p-3 bg-card border border-border shadow-xl rounded-xl z-20 animate-in fade-in zoom-in-95">
+                    <form action={convertBucketToItinerary} className="space-y-3">
+                      <input type="hidden" name="bucket_id" value={item.id} />
+                      <input type="hidden" name="title" value={item.title} />
+                      <input type="hidden" name="category" value={item.category} />
+                      <input type="hidden" name="maps_url" value={item.maps_url || ''} />
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">Pour quelle date ?</label>
+                        <input type="date" name="start_date" required className="w-full text-sm p-2 rounded-lg bg-background border border-border/50 outline-none text-foreground" />
+                      </div>
+                      <button type="submit" className="w-full bg-primary text-primary-foreground text-xs font-bold py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        Créer l'étape
+                      </button>
+                    </form>
+                  </div>
+                </details>
               )}
             </div>
           </div>
