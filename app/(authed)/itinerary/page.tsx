@@ -3,7 +3,10 @@ import { Map, MapPin, CalendarDays, Plus, Trash2, PlaneTakeoff, Train, Hotel, Ac
 import { addItineraryStage, deleteItineraryStage } from './actions'
 import MapWrapper from '@/components/map/MapWrapper'
 
-export default async function ItineraryPage() {
+export default async function ItineraryPage(props: { searchParams?: Promise<{ error?: string }> }) {
+  const params = await props.searchParams
+  const errorMsg = params?.error
+
   const supabase = await createClient()
   if (!supabase) return null
 
@@ -39,6 +42,14 @@ export default async function ItineraryPage() {
         </h1>
         <p className="text-muted-foreground mt-2">La chronologie de votre aventure pas à pas.</p>
       </header>
+
+      {errorMsg && (
+        <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-2xl flex items-center gap-3">
+          <div className="font-bold flex-1">
+            ⚠️ Une erreur a empêché l'ajout : <br/><span className="font-normal">{errorMsg}</span>
+          </div>
+        </div>
+      )}
 
       {/* Ajout Rapide Etape */}
       <div className="bg-card/40 backdrop-blur-md border border-border/50 rounded-3xl p-6 shadow-sm">

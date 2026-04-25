@@ -1,42 +1,54 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
 export async function addItineraryStage(formData: FormData) {
-  const supabase = await createClient()
-  if (!supabase) throw new Error("Supabase client is null")
+  let errorMessage = ""
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) throw new Error(`User auth failed: ${authError?.message || 'No user found'}`)
+  try {
+    const supabase = await createClient()
+    if (!supabase) throw new Error("Supabase client is null")
 
-  const title = formData.get('title') as string
-  const type = formData.get('type') as string || 'Etape'
-  const start_date = formData.get('start_date') as string
-  const location_name = formData.get('location_name') as string
-  const maps_url = formData.get('maps_url') as string
-  
-  if (!title) throw new Error("Title is missing from form")
-  if (!start_date) throw new Error("Start date is missing from form")
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error(`User auth failed: ${authError?.message || 'No user found'}`)
 
-  // Utilisation directe de la date qui arrive au format YYYY-MM-DD
-  // On force l'heure à 12:00:00 pour éviter tout glissement dû au fuseau horaire
-  const formattedDate = new Date(`${start_date}T12:00:00.000Z`).toISOString()
+    const title = formData.get('title') as string
+    const type = formData.get('type') as string || 'Etape'
+    const start_date = formData.get('start_date') as string
+    const location_name = formData.get('location_name') as string
+    const maps_url = formData.get('maps_url') as string
+    
+    if (!title) throw new Error("Title is missing from form")
+    if (!start_date) throw new Error("Start date is missing from form")
 
-  console.log("Adding itinerary with data:", { title, type, start_date, location_name, maps_url, formattedDate })
+    // Utilisation directe de la date qui arrive au format YYYY-MM-DD
+    // On force l'heure à 12:00:00 pour éviter tout glissement dû au fuseau horaire
+    const formattedDate = new Date(`${start_date}T12:00:00.000Z`).toISOString()
 
-  const { error } = await supabase.from('itinerary').insert([{
-    title,
-    type,
-    start_date: formattedDate,
-    location_name,
-    maps_url,
-    user_id: user.id
-  }])
+    console.log("Adding itinerary with data:", { title, type, start_date, location_name, maps_url, formattedDate })
 
-  if (error) {
-    console.error('Error inserting itinerary stage:', error)
-    throw new Error(`DB Insert Error: ${error.message} - Code: ${error.code}`)
+    const { error } = await supabase.from('itinerary').insert([{
+      title,
+      type,
+      start_date: formattedDate,
+      location_name,
+      maps_url,
+      user_id: user.id
+    }])
+
+    if (error) {
+      console.error('Error inserting itinerary stage:', error)
+      throw new Error(`DB Insert Error: ${error.message} - Code: ${error.code}`)
+    }
+
+  } catch (err: any) {
+    errorMessage = err.message || "Une erreur inconnue s'est produite."
+  }
+
+  if (errorMessage) {
+    redirect(`/(authed)/itinerary?error=${encodeURIComponent(errorMessage)}`)
   }
 
   revalidatePath('/(authed)/itinerary', 'page')
