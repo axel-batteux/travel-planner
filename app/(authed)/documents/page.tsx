@@ -3,6 +3,14 @@ import { FolderOpen, FileText, Download, Trash2, ShieldCheck, FileSearch } from 
 import FileUpload from '@/components/documents/FileUpload'
 import { deleteDocument } from './actions'
 
+interface DocumentItem {
+  id: string
+  title: string
+  category: string
+  file_url: string
+  file_path: string
+}
+
 export default async function DocumentsPage() {
   const supabase = await createClient()
   if (!supabase) return null
@@ -10,14 +18,14 @@ export default async function DocumentsPage() {
   const { data: docsData } = await supabase.from('documents').select('*').order('created_at', { ascending: false })
   const docs = docsData || []
 
-  const categories = Array.from(new Set(docs.map(d => d.category)))
+  const categories = Array.from(new Set(docs.map(d => d.category))) as string[]
 
   // Grouper par catégorie
   const groupedDocs = docs.reduce((acc, doc) => {
     acc[doc.category] = acc[doc.category] || []
     acc[doc.category].push(doc)
     return acc
-  }, {} as Record<string, any[]>)
+  }, {} as Record<string, DocumentItem[]>)
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500 max-w-5xl mx-auto pb-20">
