@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { Sparkles, Map, BookOpen, PlaneTakeoff, Train, Hotel, Activity, MapPin, Navigation } from 'lucide-react'
+import { Sparkles, Map, BookOpen, PlaneTakeoff, Train, Hotel, Activity, MapPin, Navigation, ArrowRight, WalletCards } from 'lucide-react'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -29,51 +29,62 @@ export default async function Home() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <header>
-        <h1 className="text-4xl font-extrabold tracking-tight">Tableau de bord</h1>
-        <p className="text-muted-foreground mt-2 font-medium">Prêts pour la prochaine aventure ?</p>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight">Tableau de bord</h1>
+          <p className="text-muted-foreground mt-2 font-medium">Prêts pour la prochaine aventure ?</p>
+        </div>
+        <div className="flex items-center gap-2 bg-card/40 border border-border/50 px-4 py-2 rounded-2xl w-fit">
+           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+           <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">En direct</span>
+        </div>
       </header>
       
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Le Programme du Jour (Hero Section) */}
-        <div className="lg:col-span-8 bg-card border border-border/50 rounded-3xl p-8 shadow-sm relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-8 opacity-5"><Navigation size={150} /></div>
-           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">Votre programme pour aujourd'hui</h2>
+        <div className="lg:col-span-8 bg-gradient-to-br from-card to-card/30 border border-border/50 rounded-[2.5rem] p-6 md:p-10 shadow-sm relative overflow-hidden flex flex-col justify-center min-h-[300px]">
+           <div className="absolute -top-12 -right-12 p-8 opacity-[0.03] rotate-12"><Navigation size={300} /></div>
+           <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+              <div className="w-2 h-8 bg-primary rounded-full" />
+              Programme du jour
+           </h2>
            
            {todayStages && todayStages.length > 0 ? (
-             <div className="space-y-4">
+             <div className="grid gap-4 max-w-2xl">
                {todayStages.map((stage: any) => (
-                 <div key={stage.id} className="bg-background border border-border/50 p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:border-primary/50 transition-colors">
-                   <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
+                 <div key={stage.id} className="bg-background/60 backdrop-blur-sm border border-border/40 p-6 rounded-[2rem] shadow-sm flex items-center gap-5 hover:border-primary/50 hover:bg-background/80 transition-all hover:-translate-y-1 group">
+                   <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                      {getTypeIcon(stage.type)}
                    </div>
-                   <div>
-                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stage.type}</p>
-                      <h3 className="text-lg font-bold">{stage.title}</h3>
+                   <div className="min-w-0">
+                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">{stage.type}</p>
+                      <h3 className="text-xl font-bold truncate tracking-tight">{stage.title}</h3>
                    </div>
                  </div>
                ))}
-               <Link href="/itinerary" className="inline-block mt-4 text-sm font-bold text-primary hover:underline">
-                 Voir tout l'itinéraire →
+               <Link href="/itinerary" className="inline-flex items-center gap-2 mt-4 text-sm font-bold text-primary hover:gap-3 transition-all underline-offset-4 hover:underline">
+                 Tout l'itinéraire <ArrowRight size={16} />
                </Link>
              </div>
            ) : (
-             <div className="bg-background/50 border border-dashed border-border/50 rounded-2xl p-8 text-center text-muted-foreground">
-               <p className="font-medium">Rien de prévu au programme aujourd'hui. Profitez-en pour vous détendre ou flâner ! ☀️</p>
+             <div className="bg-background/20 border border-dashed border-border/50 rounded-[2rem] p-12 text-center text-muted-foreground backdrop-blur-sm">
+               <p className="font-semibold text-lg">Journée libre 🌴</p>
+               <p className="text-sm opacity-60">Aucune étape n'est enregistrée pour aujourd'hui.</p>
              </div>
            )}
         </div>
 
         {/* Budget Dynamique */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-border flex flex-col justify-between group hover:border-primary/50 transition-colors h-full">
+        <div className="lg:col-span-4">
+          <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-sm border border-border flex flex-col justify-between group hover:border-primary/50 transition-colors relative overflow-hidden h-full">
+            <div className="absolute -bottom-8 -right-8 opacity-5 group-hover:scale-110 transition-transform"><WalletCards size={150} /></div>
             <div>
-              <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Total Dépensé</h2>
-              <p className="text-4xl font-black bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{totalSpent.toFixed(2)} €</p>
+              <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">Dépenses totales</h2>
+              <p className="text-5xl font-black bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent tabular-nums">{totalSpent.toFixed(2)} €</p>
             </div>
-            <Link href="/budget" className="mt-4 text-xs font-bold text-primary group-hover:underline w-max">
-              Gérer les comptes →
+            <Link href="/budget" className="mt-8 inline-flex items-center gap-2 text-xs font-black text-primary uppercase tracking-widest group-hover:gap-3 transition-all">
+              Détails du budget <ArrowRight size={14} />
             </Link>
           </div>
         </div>

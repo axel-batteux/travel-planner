@@ -70,16 +70,16 @@ export default function ItineraryStageCard({ stage }: { stage: any }) {
   }
 
   return (
-    <div className="bg-card border border-border/50 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative group w-full">
-      <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full hidden md:block -left-[54px]" />
+    <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:bg-card hover:border-primary/40 transition-all relative group w-full">
+      <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full hidden md:block -left-[54px] shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]" />
       
-      <div className="flex items-start gap-4 pr-16">
-        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-5 pr-20">
+        <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform">
           {getTypeIcon(stage.type)}
         </div>
-        <div>
-           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{stage.type}</p>
-           <h3 className="text-lg font-bold leading-tight">{stage.title}</h3>
+        <div className="min-w-0">
+           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1.5 opacity-60">{stage.type}</p>
+           <h3 className="text-xl font-bold leading-tight tracking-tight truncate">{stage.title}</h3>
         </div>
       </div>
 

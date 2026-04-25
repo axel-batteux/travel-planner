@@ -18,12 +18,12 @@ export function DesktopSidebar() {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen fixed top-0 left-0 bg-card border-r border-border z-50 shadow-sm">
-      <div className="p-6 flex items-center space-x-3">
-        <div className="bg-primary/10 p-2 rounded-lg">
-          <Plane className="text-primary" size={24} />
+    <aside className="hidden md:flex flex-col w-72 h-screen fixed top-0 left-0 bg-card border-r border-border z-50">
+      <div className="p-8 pb-10 flex items-center space-x-3">
+        <div className="bg-primary/10 p-2.5 rounded-xl">
+          <Plane className="text-primary" size={28} />
         </div>
-        <h1 className="text-xl font-bold tracking-tight">TravelPlanner</h1>
+        <h1 className="text-2xl font-black tracking-tighter">Travel<span className="text-primary font-black">.</span></h1>
       </div>
       <nav className="flex-1 px-4 py-8 space-y-2">
         {navItems.map((item) => {
@@ -36,14 +36,14 @@ export function DesktopSidebar() {
               key={item.name}
               href={item.href}
               prefetch={true}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+              className={`flex items-center space-x-4 px-6 py-4 rounded-[1.25rem] transition-all hover:translate-x-1 ${
                 isReallyActive
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 font-bold"
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground font-medium"
               }`}
             >
-              <Icon size={20} />
-              <span className="font-medium">{item.name}</span>
+              <Icon size={22} strokeWidth={isReallyActive ? 2.5 : 2} />
+              <span className="tracking-tight">{item.name}</span>
             </Link>
           );
         })}

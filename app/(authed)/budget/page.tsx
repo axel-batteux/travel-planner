@@ -154,41 +154,48 @@ export default async function BudgetPage() {
 
         {/* Historique Moderne */}
         <div className="lg:col-span-2 space-y-6">
-           <h2 className="text-xl font-bold flex items-center gap-2">Historique des transactions</h2>
+           <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold flex items-center gap-2">Historique des transactions</h2>
+              <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-1 rounded-lg">{expenseList.length} total</span>
+           </div>
+           
            {expenseList.length === 0 ? (
              <div className="bg-card/30 border border-dashed border-border rounded-3xl p-12 text-center">
                <Coins className="mx-auto text-muted-foreground/30 mb-4" size={48} />
                <p className="text-muted-foreground">Aucune dépense pour l'instant.</p>
              </div>
            ) : (
-             <div className="grid gap-3">
+             <div className="grid gap-4">
                {expenseList.map((exp) => (
-                 <div key={exp.id} className="group bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-muted/50 hover:border-border cursor-default">
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-xl shadow-inner border border-background shrink-0">
-                         {exp.category === 'Nourriture' ? '🍔' : exp.category === 'Transport' ? '🚕' : exp.category === 'Vol' ? '✈️' : exp.category === 'Hôtel' ? '🏨' : exp.category === 'Activité' ? '🎟️' : '🛒'}
-                       </div>
-                       <div>
-                         <p className="font-bold text-foreground flex items-center gap-2">
-                           {exp.title}
-                           {exp.itinerary_id && stages.find(s => s.id === exp.itinerary_id) && (
-                             <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded uppercase tracking-wider">
-                               📍 {stages.find(s => s.id === exp.itinerary_id)?.title}
-                             </span>
-                           )}
-                         </p>
-                         <div className="flex items-center flex-wrap gap-2 text-xs text-muted-foreground mt-1">
-                           <span className="bg-background border border-border/50 px-2 py-0.5 rounded-md text-foreground font-medium">{exp.paid_by} a payé</span>
-                           <span>•</span>
-                           <span>
-                             {exp.split_type === 'equally' ? 'Divisé 50/50' : exp.split_type === 'paid_by_other_only' ? 'Pour l\'autre' : 'Dépense Perso'}
-                           </span>
-                         </div>
-                       </div>
+                 <div key={exp.id} className="group bg-card/40 backdrop-blur-sm border border-border/50 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-card hover:border-primary/30 shadow-sm">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center text-2xl shadow-inner border border-background shrink-0">
+                          {exp.category === 'Nourriture' ? '🍔' : exp.category === 'Transport' ? '🚕' : exp.category === 'Vol' ? '✈️' : exp.category === 'Hôtel' ? '🏨' : exp.category === 'Activité' ? '🎟️' : '🛒'}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-foreground flex flex-wrap items-center gap-2 text-lg">
+                            <span className="truncate">{exp.title}</span>
+                            {exp.itinerary_id && stages.find(s => s.id === exp.itinerary_id) && (
+                              <span className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-lg uppercase tracking-wider font-black whitespace-nowrap">
+                                📍 {stages.find(s => s.id === exp.itinerary_id)?.title}
+                              </span>
+                            )}
+                          </p>
+                          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1">
+                            <span className="flex items-center gap-1.5 font-semibold text-foreground/80">
+                                <User size={12} className="text-primary" /> {exp.paid_by}
+                            </span>
+                            <span className="opacity-30">•</span>
+                            <span className="bg-muted px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">
+                              {exp.split_type === 'equally' ? '50/50' : exp.split_type === 'paid_by_other_only' ? 'Cadeau 🎁' : 'Perso'}
+                            </span>
+                            <span className="opacity-30">•</span>
+                            <span>{new Date(exp.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
+                          </div>
+                        </div>
                     </div>
-                    <div className="text-right">
-                       <p className="text-lg font-black">{Number(exp.amount).toFixed(2)} €</p>
-                       <p className="text-xs text-muted-foreground mt-1">{new Date(exp.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })}</p>
+                    <div className="text-left sm:text-right shrink-0 bg-background/40 sm:bg-transparent p-3 sm:p-0 rounded-2xl border border-border/20 sm:border-0">
+                       <p className="text-2xl font-black tabular-nums">{Number(exp.amount).toFixed(2)} <span className="text-sm font-bold text-muted-foreground">€</span></p>
                     </div>
                  </div>
                ))}

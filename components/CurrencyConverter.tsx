@@ -53,31 +53,41 @@ export default function CurrencyConverter() {
         <RefreshCw size={16} /> Convertisseur Hors-Ligne
       </h3>
 
-      <div className="flex items-center gap-3 relative z-10">
-        <div className="flex-1 bg-background border border-border/50 rounded-xl flex overflow-hidden shadow-inner focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-           <input 
-             type="number" 
-             value={amount}
-             onChange={(e) => setAmount(e.target.value)}
-             placeholder="1500"
-             className="w-full bg-transparent px-3 py-2 text-sm outline-none font-medium"
-           />
-           <select 
-             value={currency} 
-             onChange={(e) => setCurrency(e.target.value)}
-             className="bg-muted/50 border-l border-border/50 px-3 py-2 text-xs font-bold outline-none cursor-pointer text-foreground max-w-[200px] truncate"
-           >
-             {Object.entries(FALLBACK_RATES).map(([key, data]) => (
-               <option key={key} value={key}>{data.label}</option>
-             ))}
-           </select>
+      <div className="flex flex-col gap-4 relative z-10">
+        <div className="space-y-3">
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Montant local</label>
+          <div className="flex bg-background border border-border/50 rounded-2xl overflow-hidden shadow-inner focus-within:ring-2 focus-within:ring-primary/20 transition-all h-14">
+             <input 
+               type="number" 
+               value={amount}
+               onChange={(e) => setAmount(e.target.value)}
+               placeholder="Ex: 1500"
+               className="flex-1 bg-transparent px-4 text-base outline-none font-bold"
+             />
+             <select 
+               value={currency} 
+               onChange={(e) => setCurrency(e.target.value)}
+               className="bg-muted/30 border-l border-border/50 px-4 text-xs font-black outline-none cursor-pointer text-foreground min-w-[120px]"
+             >
+               {Object.entries(FALLBACK_RATES).map(([key, data]) => (
+                 <option key={key} value={key} className="bg-background text-foreground">{data.label}</option>
+               ))}
+             </select>
+          </div>
         </div>
 
-        <ArrowRight size={16} className="text-muted-foreground shrink-0" />
+        <div className="flex justify-center">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary rotate-90 md:rotate-0">
+                <ArrowRight size={16} />
+            </div>
+        </div>
 
-        <div className="flex-1 bg-background border border-border/50 rounded-xl px-3 py-2 flex items-center justify-between shadow-sm">
-           <span className="text-sm font-bold">{result !== null ? result.toFixed(2) : '0.00'}</span>
-           <span className="text-xs font-bold text-muted-foreground">EUR</span>
+        <div className="space-y-3">
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Conversion en Euros</label>
+          <div className="bg-primary border border-primary/20 rounded-2xl px-5 h-14 flex items-center justify-between shadow-lg shadow-primary/20">
+             <span className="text-xl font-black text-primary-foreground">{result !== null ? result.toFixed(2) : '0.00'}</span>
+             <span className="text-xs font-black bg-white/20 text-white px-2 py-1 rounded-lg">EUR</span>
+          </div>
         </div>
       </div>
     </div>
