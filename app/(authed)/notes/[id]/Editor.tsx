@@ -361,7 +361,7 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
         }
         .tiptap-wrapper .ProseMirror {
           cursor: text;
-          caret-color: var(--primary);
+          caret-color: var(--foreground);
         }
       `}} />
     </div>

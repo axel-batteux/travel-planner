@@ -11,7 +11,14 @@ const FALLBACK_RATES: Record<string, { rate: number, label: string }> = {
   CHF: { rate: 0.98, label: "Franc (CHF) - Suisse" },
   CAD: { rate: 1.47, label: "Dollar (CAD) - Canada" },
   AUD: { rate: 1.65, label: "Dollar (AUD) - Australie" },
-  KRW: { rate: 1475.00, label: "Won (KRW) - Corée du Sud" }
+  KRW: { rate: 1475.00, label: "Won (KRW) - Corée du Sud" },
+  THB: { rate: 39.50, label: "Baht (THB) - Thaïlande" },
+  VND: { rate: 27500.00, label: "Dong (VND) - Vietnam" },
+  LAK: { rate: 23000.00, label: "Kip (LAK) - Laos" },
+  KHR: { rate: 4350.00, label: "Riel (KHR) - Cambodge" },
+  IDR: { rate: 17500.00, label: "Roupie (IDR) - Indonésie" },
+  PHP: { rate: 62.00, label: "Peso (PHP) - Philippines" },
+  MYR: { rate: 5.10, label: "Ringgit (MYR) - Malaisie" }
 }
 
 export default function CurrencyConverter() {
