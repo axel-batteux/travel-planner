@@ -65,23 +65,8 @@ export default async function Home() {
            )}
         </div>
 
-        {/* SOS Urgence (Side Widget) */}
+        {/* Colonne latérale */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-red-500 text-white rounded-3xl p-6 shadow-xl shadow-red-500/20 relative overflow-hidden group">
-            <div className="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-110 transition-transform"><AlertTriangle size={100} /></div>
-            <h2 className="text-lg font-black mb-4 flex items-center gap-2"><Phone size={20} /> Numéros d'Urgence</h2>
-            <ul className="space-y-3 font-semibold relative z-10 text-sm">
-              <li className="flex justify-between items-center bg-red-600/50 p-3 rounded-xl border border-red-400/20">
-                 <span>Police</span> <span>112</span>
-              </li>
-              <li className="flex justify-between items-center bg-red-600/50 p-3 rounded-xl border border-red-400/20">
-                 <span>Ambulance</span> <span>112</span>
-              </li>
-              <li className="flex justify-between items-center bg-red-600/50 p-3 rounded-xl border border-red-400/20">
-                 <span>Ambassade FR</span> <span className="text-xs break-all text-right ml-4">À chercher sur internet</span>
-              </li>
-            </ul>
-          </div>
 
           {/* Budget Dynamique */}
           <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-border flex flex-col justify-between group hover:border-primary/50 transition-colors">
