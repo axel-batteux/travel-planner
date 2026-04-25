@@ -355,28 +355,43 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
         /* Force colors to be readable (Black on White) even in Dark Mode */
-        .tiptap-wrapper .ProseMirror {
-          color: #1a1a1a !important;
+        .tiptap-wrapper, .tiptap-content, .ProseMirror {
           background-color: #ffffff !important;
-          cursor: text;
+          color: #000000 !important;
+        }
+        
+        .tiptap-wrapper .ProseMirror {
+          min-height: 400px;
+          outline: none !important;
+          cursor: text !important;
+          /* Force caret (curseur clignotant) to be black and thick */
           caret-color: #000000 !important;
         }
+
+        /* Ensure all nested elements inherit the black caret */
+        .tiptap-wrapper .ProseMirror * {
+           color: #000000 !important;
+           caret-color: #000000 !important;
+        }
+        
         .tiptap-wrapper .ProseMirror h1, 
         .tiptap-wrapper .ProseMirror h2, 
         .tiptap-wrapper .ProseMirror h3,
         .tiptap-wrapper .ProseMirror p,
         .tiptap-wrapper .ProseMirror li {
-           color: #1a1a1a !important;
+           color: #000000 !important;
         }
+        
         .tiptap-wrapper .ProseMirror *::selection {
           background-color: #2563eb !important;
-          color: white !important;
+          color: #ffffff !important;
         }
+        
         .tiptap-wrapper .ProseMirror table td,
         .tiptap-wrapper .ProseMirror table th {
           border: 1px solid #e5e7eb !important;
           background: #ffffff !important;
-          color: #1a1a1a !important;
+          color: #000000 !important;
         }
         .tiptap-wrapper .ProseMirror table th {
           background-color: #f3f4f6 !important;
