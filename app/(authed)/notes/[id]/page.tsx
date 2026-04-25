@@ -34,10 +34,8 @@ export default async function NotePage({ params }: { params: Promise<{ id: strin
         </form>
       </header>
       
-      <main className="min-h-[70vh]">
-        <div className="max-w-3xl mx-auto mb-6">
-          <TitleInput id={note.id} initialTitle={note.title || ''} />
-        </div>
+      <main className="bg-card border border-border/50 rounded-[40px] p-8 md:p-12 shadow-sm min-h-[70vh]">
+        <TitleInput id={note.id} initialTitle={note.title || ''} />
         
         <Editor id={note.id} initialContent={note.content || ''} />
       </main>

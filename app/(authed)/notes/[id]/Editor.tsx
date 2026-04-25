@@ -85,7 +85,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   const btnBase = "p-2 rounded-xl transition-colors border"
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 p-2 bg-gradient-to-b from-[#f9fafb] to-[#f3f4f6] dark:from-[#2a2a2a] dark:to-[#1a1a1a] shadow-md border-b md:border md:rounded-t-2xl border-border/80 sticky top-0 z-30 w-full mb-6 max-w-4xl mx-auto">
+    <div className="flex flex-wrap gap-1 p-2 bg-card/60 backdrop-blur-sm shadow-sm rounded-2xl mb-6 border border-border/60 sticky top-4 z-20">
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={`${btnBase} ${editor.isActive('bold') ? isActiveClass : inactiveClass}`}
@@ -263,22 +263,17 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
   }, [editor, saveStatus, id])
 
   return (
-    <div className="relative w-full flex flex-col items-center pb-24">
-      {/* Barre d'outils style ruban Word */}
+    <div className="relative w-full min-h-[400px]">
+      <div className="absolute -top-[120px] right-2 md:-top-[132px] md:right-8 text-xs font-semibold text-muted-foreground z-10 px-3 py-1.5 rounded-full bg-background border border-border flex items-center gap-2 shadow-sm">
+        {saveStatus === 'saved' && <><span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span> Enregistré</>}
+        {saveStatus === 'saving' && <><span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Enregistrement...</>}
+        {saveStatus === 'unsaved' && <><span className="w-2 h-2 rounded-full bg-amber-500"></span> Modification...</>}
+      </div>
+      
       <MenuBar editor={editor} />
       
-      {/* Statut de sauvegarde flottant */}
-      <div className="fixed bottom-6 right-6 text-xs font-bold text-slate-600 bg-white shadow-xl shadow-black/10 px-4 py-2.5 rounded-full flex items-center gap-2 z-50 ring-1 ring-slate-200">
-        {saveStatus === 'saved' && <><span className="w-2 h-2 rounded-full bg-green-500"></span> Enregistré</>}
-        {saveStatus === 'saving' && <><span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Enregistrement...</>}
-        {saveStatus === 'unsaved' && <><span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Modification...</>}
-      </div>
-
-      {/* Feuille A4 Blanche */}
-      <div className="w-full max-w-3xl transform transition-all relative">
-        <div className="tiptap-wrapper bg-white shadow-2xl ring-1 ring-black/5 min-h-[1056px] w-full p-10 md:p-20 text-black mx-auto">
-          <EditorContent editor={editor} className="cursor-text tiptap-content text-black placeholder:text-gray-400" />
-        </div>
+      <div className="tiptap-wrapper text-foreground cursor-text">
+        <EditorContent editor={editor} className="cursor-text tiptap-content" />
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `
@@ -359,20 +354,14 @@ export default function Editor({ id, initialContent }: { id: string, initialCont
           margin: 1.5em 0;
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        /* Word Page Typography Overrides */
-        .tiptap-wrapper .ProseMirror * {
-           color: #000000 !important;
-        }
-        .tiptap-wrapper .ProseMirror blockquote {
-           color: #4b5563 !important;
-        }
+        /* Enhance cursor visibility / selection styling */
         .tiptap-wrapper .ProseMirror *::selection {
-          background-color: #2563eb !important;
-          color: white !important;
+          background-color: var(--primary);
+          color: white;
         }
         .tiptap-wrapper .ProseMirror {
           cursor: text;
-          caret-color: #000000 !important;
+          caret-color: var(--foreground);
         }
       `}} />
     </div>
