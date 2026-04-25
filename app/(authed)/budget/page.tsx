@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { Plus, ArrowRightLeft, User, SplitSquareHorizontal, Coins } from 'lucide-react'
 import { addExpense } from './actions'
+import CurrencyConverter from '@/components/CurrencyConverter'
 
 export default async function BudgetPage() {
   const supabase = await createClient()
@@ -82,10 +83,15 @@ export default async function BudgetPage() {
 
       {/* Formulaire & Liste */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Formulaire Ajout Rapide */}
-        <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm lg:col-span-1 sticky top-8">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Plus className="text-primary"/> Nouvelle Dépense</h2>
-          <form className="space-y-5" action={addExpense}>
+        {/* Colonne de gauche (Formulaire + Gadgets) */}
+        <div className="lg:col-span-1 space-y-6 sticky top-8">
+          
+          <CurrencyConverter />
+
+          {/* Formulaire Ajout Rapide */}
+          <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Plus className="text-primary"/> Nouvelle Dépense</h2>
+            <form className="space-y-5" action={addExpense}>
             <div>
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Titre de la dépense</label>
               <input name="title" required className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/40" placeholder="Ex: Restaurant sushis, Uber..." />
@@ -130,6 +136,7 @@ export default async function BudgetPage() {
               Enregistrer la dépense
             </button>
           </form>
+          </div>
         </div>
 
         {/* Historique Moderne */}
