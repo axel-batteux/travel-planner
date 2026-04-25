@@ -67,7 +67,7 @@ export default async function DocumentsPage() {
                         <a href={doc.file_url} download={doc.title} className="text-muted-foreground hover:text-primary p-2 transition-colors">
                           <Download size={18} />
                         </a>
-                        <form action={async () => { 'use server'; await deleteDocument(doc.id, doc.file_path) }}>
+                        <form action={deleteDocument.bind(null, doc.id, doc.file_path)}>
                           <button type="submit" className="text-muted-foreground hover:text-red-500 p-2 transition-colors opacity-0 group-hover:opacity-100">
                             <Trash2 size={18} />
                           </button>
