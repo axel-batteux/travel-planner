@@ -42,61 +42,78 @@ export default function ItineraryMap({
 }: {
   stages: any[]
 }) {
-  const [positions, setPositions] = useState<[number, number][]>([])
+  const [markers, setMarkers] = useState<{id: string, coords: [number, number], title: string, type: string}[]>([])
 
   useEffect(() => {
     let isMounted = true;
     
     const geocodeStages = async () => {
-      const newPositions: [number, number][] = []
+      const newMarkers: {id: string, coords: [number, number], title: string, type: string}[] = []
       
       for (const stage of stages) {
-        let coords: [number, number] | null = null
+        const text = stage.location_name || stage.title || ''
+        const cleaned = text.replace(/^(Vol|Train|Trajet|Bus|Avion)\s+/i, '').trim()
         
-        // On essaie d'abord avec le nom exact
-        const queries = [
-          stage.location_name || stage.title,
-          // Fallback : on coupe au premier tiret ou au mot clé pour "Nantes Madrid" -> "Nantes"
-          (stage.location_name || stage.title).replace(/^(Vol|Train|Trajet|Bus)\s+/i, '').split(/[\s-]/)[0]
-        ]
+        let places = [cleaned]
         
-        for (const query of queries) {
-          if (!query || query.length < 2) continue
-          try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
-            const data = await res.json()
-            if (data && data.length > 0) {
-              coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)]
-              break
+        // Détecter si c'est un trajet (2 villes)
+        if (cleaned.includes('-')) {
+            places = cleaned.split('-').map(p => p.trim())
+        } else if (cleaned.toLowerCase().includes(' a ')) {
+            places = cleaned.split(/ a /i).map(p => p.trim())
+        } else if (cleaned.toLowerCase().includes(' à ')) {
+            places = cleaned.split(/ à /i).map(p => p.trim())
+        } else if (cleaned.toLowerCase().includes(' vers ')) {
+            places = cleaned.split(/ vers /i).map(p => p.trim())
+        } else if (['Vol', 'Train', 'Bus', 'Trajet'].includes(stage.type) || /^(Vol|Train|Trajet)/i.test(text)) {
+            const words = cleaned.split(/\s+/)
+            if (words.length === 2) {
+                places = words // Ex: "Nantes Madrid" -> ["Nantes", "Madrid"]
+            } else if (words.length > 2 && words.includes('Paris')) {
+                // Heuristic pour noms plus longs ex: "Paris CDG Tokyo" ? Pas parfait mais c'est un bonus
             }
-          } catch (e) {
-            console.error("Geocoding failed for", query)
-          }
-          // Respecter la limite de Nominatim (1 requête/seconde)
-          await new Promise(r => setTimeout(r, 1000))
         }
         
-        newPositions.push(coords || defaultCenter)
+        for (const [idx, place] of places.entries()) {
+          if (!place || place.length < 2) continue
+          
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}&limit=1`)
+            const data = await res.json()
+            if (data && data.length > 0) {
+              newMarkers.push({
+                 id: `${stage.id}-${idx}`,
+                 coords: [parseFloat(data[0].lat), parseFloat(data[0].lon)],
+                 title: place.charAt(0).toUpperCase() + place.slice(1),
+                 type: stage.type
+              })
+            }
+          } catch (e) {
+            console.error("Geocoding failed for", place)
+          }
+          await new Promise(r => setTimeout(r, 1000))
+        }
       }
       
       if (isMounted) {
-        setPositions(newPositions)
+        setMarkers(newMarkers)
       }
     }
 
     if (stages.length > 0) {
       geocodeStages()
     } else {
-      setPositions([])
+      setMarkers([])
     }
     
     return () => { isMounted = false }
   }, [stages])
 
-  if (stages.length > 0 && positions.length === 0) {
-     // Loading state for geocoding
+  if (stages.length > 0 && markers.length === 0) {
      return <div className="w-full h-full rounded-2xl border border-border/50 bg-muted flex items-center justify-center text-muted-foreground animate-pulse">Cartographie en cours...</div>
   }
+
+  const positions = markers.map(m => m.coords)
 
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden border border-border/50 shadow-sm relative z-0">
@@ -113,17 +130,15 @@ export default function ItineraryMap({
         
         <AdjustBounds positions={positions} />
         
-        {stages.map((stage, i) => (
-          positions[i] && (
-            <Marker key={stage.id} position={positions[i]} icon={customIcon}>
+        {markers.map((marker, i) => (
+            <Marker key={marker.id} position={marker.coords} icon={customIcon}>
               <Popup>
                 <div className="font-sans">
-                  <p className="font-bold mb-1">{stage.title}</p>
-                  <p className="text-sm opacity-80">{stage.type}</p>
+                  <p className="font-bold mb-1">{marker.title}</p>
+                  <p className="text-sm opacity-80">{marker.type}</p>
                 </div>
               </Popup>
             </Marker>
-          )
         ))}
 
         {positions.length > 1 && (
