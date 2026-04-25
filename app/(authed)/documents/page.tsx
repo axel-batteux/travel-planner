@@ -62,7 +62,7 @@ export default async function DocumentsPage() {
                </div>
                
                <ul className="space-y-1 flex-1">
-                 {items.map(doc => (
+                 {(items as DocumentItem[]).map(doc => (
                    <li key={doc.id} className="flex items-center justify-between p-4 bg-background/40 hover:bg-background rounded-2xl transition-all group border border-transparent hover:border-border/50">
                       <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 flex-1 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-primary/5 transition-colors">
